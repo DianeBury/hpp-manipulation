@@ -118,8 +118,8 @@ namespace hpp {
                                        const std::string& gripper,
                                        const std::string& handle);
 
-        virtual void pathValidationType (const std::string& type,
-                                         const value_type& tolerance);
+        virtual void pathValidationType (const core::PathValidationTypes_t& types,
+                              const core::PathValidationTolerances_t& tolerances);
 
         /// Create a new problem.
         virtual void resetProblem ();

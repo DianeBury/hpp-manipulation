@@ -203,9 +203,9 @@ namespace hpp {
       core::ProblemSolver::initializeProblem (problem_);
       if (constraintGraph_)
         problem_->constraintGraph (constraintGraph_);
-      value_type tolerance;
-      const std::string& type = parent_t::pathValidationType (tolerance);
-      problem_->setPathValidationFactory (pathValidations.get(type), tolerance);
+      core::PathValidationTolerances_t tolerances;
+      const core::PathValidationTypes_t types = parent_t::pathValidationTypes (tolerances);
+      problem_->setPathValidationFactories (pathValidations.get(types), tolerances);
     }
 
     void ProblemSolver::constraintGraph (const std::string& graphName)
@@ -373,14 +373,14 @@ namespace hpp {
       addNumericalConstraint (name, constraint);
     }
 
-    void ProblemSolver::pathValidationType (const std::string& type,
-        const value_type& tolerance)
+    void ProblemSolver::pathValidationType (const core::PathValidationTypes_t& types,
+        const core::PathValidationTolerances_t& tolerances)
     {
-      parent_t::pathValidationType(type, tolerance);
+      parent_t::pathValidationTypes(types, tolerances);
       if (problem_)
-        problem_->setPathValidationFactory (
-            pathValidations.get(type),
-            tolerance);
+        problem_->setPathValidationFactories (
+            pathValidations.get(types),
+            tolerances);
     }
 
     void ProblemSolver::resetRoadmap ()

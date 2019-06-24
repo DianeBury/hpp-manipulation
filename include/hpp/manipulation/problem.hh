@@ -33,6 +33,7 @@ namespace hpp {
     {
       public:
         typedef core::Problem Parent;
+        typedef std::vector <core::PathValidationBuilder_t> PathValidationBuilders_t;
 
         /// Constructor
         static ProblemPtr_t create (DevicePtr_t robot);
@@ -72,7 +73,11 @@ namespace hpp {
 
         void setPathValidationFactory (
             const core::PathValidationBuilder_t& factory,
-            const value_type& tol);
+            const core::value_type &tolerance);
+
+        void setPathValidationFactories (
+            const PathValidationBuilders_t& factories,
+            const core::PathValidationTolerances_t &tolerances);
 
       protected:
         /// Constructor
@@ -86,8 +91,8 @@ namespace hpp {
         /// The graph of constraints
         graph::GraphPtr_t graph_;
 
-        core::PathValidationBuilder_t pvFactory_;
-        value_type pvTol_;
+        PathValidationBuilders_t pvFactories_;
+        core::PathValidationTolerances_t pvTolerances_;
     }; // class Problem
     /// \}
   } // namespace manipulation

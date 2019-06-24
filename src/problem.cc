@@ -17,6 +17,7 @@
 #include <hpp/manipulation/problem.hh>
 
 #include <hpp/core/path-validation/discretized-collision-checking.hh>
+#include <hpp/core/path-validations.hh>
 
 #include <hpp/manipulation/weighed-distance.hh>
 #include <hpp/manipulation/steering-method/graph.hh>
@@ -71,9 +72,12 @@ namespace hpp {
       Parent::pathValidation (pathValidation);
     }
 
-    PathValidationPtr_t Problem::pathValidationFactory () const
+    core::PathValidationPtr_t Problem::pathValidationFactory () const
     {
-      PathValidationPtr_t pv (pvFactory_ (robot(), pvTol_));
+      core::PathValidationsPtr_t pv = core::PathValidations::create();
+      for (unsigned i=0; i<pvFactories_.size(); i++)
+        pv->add ((pvFactories_.at (i)) (robot(), pvTolerances_.at (i)) );
+
       const core::ObjectStdVector_t& obstacles (collisionObstacles ());
       // Insert obstacles in path validation object
       for (core::ObjectStdVector_t::const_iterator _obs = obstacles.begin ();
@@ -81,7 +85,8 @@ namespace hpp {
 	pv->addObstacle (*_obs);
       GraphPathValidationPtr_t gpv = HPP_DYNAMIC_PTR_CAST(GraphPathValidation, pv);
       if (gpv) return gpv->innerValidation();
-      return pv;
+
+      return HPP_DYNAMIC_PTR_CAST(core::PathValidation, pv);
     }
 
     SteeringMethodPtr_t Problem::steeringMethod () const
@@ -92,10 +97,20 @@ namespace hpp {
 
     void Problem::setPathValidationFactory (
         const core::PathValidationBuilder_t& factory,
-        const value_type& tol)
+        const core::value_type &tolerance)
     {
-      pvFactory_ = factory;
-      pvTol_ = tol;
+      clearPathValidations ();
+      pvFactories_.push_back(factory);
+      pvTolerances_.push_back(tolerance);
+      if (graph_) graph_->setDirty();
+    }
+
+    void Problem::setPathValidationFactories (
+        const PathValidationBuilders_t& factories,
+        const core::PathValidationTolerances_t &tolerances)
+    {
+      pvFactories_ = factories;
+      pvTolerances_ = tolerances;
       if (graph_) graph_->setDirty();
     }
 
